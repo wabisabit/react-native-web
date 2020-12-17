@@ -10,14 +10,13 @@
 
 'use strict';
 
-import type { PressResponderConfig } from '../../modules/usePressEvents/PressResponder';
-import type { ViewProps } from '../View';
-
 import * as React from 'react';
 import { useMemo, useRef } from 'react';
 import pick from '../../modules/pick';
 import useMergeRefs from '../../modules/useMergeRefs';
 import usePressEvents from '../../modules/usePressEvents';
+import StyleSheet from '../StyleSheet';
+import type { ViewProps } from '../View';
 
 export type Props = $ReadOnly<{|
   accessibilityLabel?: $PropertyType<ViewProps, 'accessibilityLabel'>,
@@ -117,10 +116,18 @@ function TouchableWithoutFeedback(props: Props, forwardedRef): React.Node {
   supportedProps.focusable = focusable !== false && onPress !== undefined;
   supportedProps.ref = useMergeRefs(forwardedRef, hostRef, element.ref);
 
+  const style = [!disabled && styles.actionable, element.props.style];
   const elementProps = Object.assign(supportedProps, pressEventHandlers);
 
-  return React.cloneElement(element, elementProps, ...children);
+  return React.cloneElement(element, { ...elementProps, style }, ...children);
 }
+
+const styles = StyleSheet.create({
+  actionable: {
+    cursor: 'pointer',
+    touchAction: 'manipulation'
+  }
+});
 
 const MemoedTouchableWithoutFeedback = React.memo(React.forwardRef(TouchableWithoutFeedback));
 MemoedTouchableWithoutFeedback.displayName = 'TouchableWithoutFeedback';
